@@ -2,9 +2,7 @@
 layout: default
 ---
 
-<!-- Main -->
 <div id="main">
-  <!-- Header -->
   <header id="header">
     <h1>{{ site.header }}</h1>
     <h2>{{ site.subheader }}</h2>
@@ -30,33 +28,35 @@ layout: default
     {% endif %}
   </header>
 
-  <!-- Thumbnail -->
-<section id="thumbnails">
-  {% comment %} 
-     按文件夹分组获取图片 
-  {% endcomment %}
-  {% assign images = site.static_files | where_not: "image", false %}
-  {% assign folders = "" | split: "," %}
+  <section id="thumbnails">
+    {% comment %} 
+       获取 gallery 文件夹下的子文件夹名称 
+    {% endcomment %}
+    {% assign images = site.static_files | where_not: "image", false %}
+    {% assign folders = "" | split: "," %}
 
-  {% for image in images %}
-    {% if image.path contains 'gallery/' %}
-      {% assign parts = image.path | split: '/' %}
-      {% assign folder_name = parts[2] %}
-      {% unless folders contains folder_name %}
-        {% assign folders = folders | push: folder_name %}
+    {% for image in images %}
+      {% if image.path contains 'gallery/' %}
+        {% assign parts = image.path | split: '/' %}
+        {% assign folder_name = parts[2] %}
         
-        <article>
-          <a class="thumbnail" href="/gallery/{{ folder_name }}/">
-            <img src="{{ image.path }}" alt="{{ folder_name }}" />
-          </a>
-          <h2>{{ folder_name | replace: "-", " " | upcase }}</h2>
-        </article>
-      {% endunless %}
-    {% endif %}
-  {% endfor %}
-</section>
+        {% unless folders contains folder_name %}
+          {% assign folders = folders | push: folder_name %}
+          
+          <article>
+            {% comment %} 
+               点击跳转到对应文件夹下的 index.html 页面
+            {% endcomment %}
+            <a class="thumbnail" href="{{ site.baseurl }}/gallery/{{ folder_name }}/index.html">
+              <img src="{{ image.path }}" alt="{{ folder_name }}" />
+            </a>
+            <h2>{{ folder_name | replace: "-", " " | upcase }} (点击进入合集)</h2>
+          </article>
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  </section>
 
-  <!-- Footer -->
   <footer id="footer">
     <ul class="copyright">
       <li>{{ site.copyright }}</li>
