@@ -3,88 +3,54 @@ layout: default
 ---
 
 <div id="main">
-  <header id="header">
-    <h1>{{ site.header }}</h1>
-    <h2>{{ site.subheader }}</h2>
-    <p>{{ site.bio }}</p>
-    {% if site.social %}
-      <ul class="icons">
-        {% if site.social.twitter_username and site.social.twitter_username != "" %}
-          <li><a href="https://twitter.com/{{ site.social.twitter_username }}" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-        {% endif %}
-        {% if site.social.facebook_username and site.social.facebook_username != "" %}
-          <li><a href="https://www.facebook.com/{{ site.social.facebook_username }}" class="icon fa-facebook-official"><span class="label">Facebook</span></a></li>
-        {% endif %}
-        {% if site.social.instagram_username and site.social.instagram_username != "" %}
-          <li><a href="https://instagram.com/{{ site.social.instagram_username }}" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-        {% endif %}
-        {% if site.social.github_username and site.social.github_username != "" %}
-          <li><a href="https://github.com/{{ site.social.github_username }}" class="icon fa-github"><span class="label">Github</span></a></li>
-        {% endif %}
-        {% if site.social.email and site.social.email != "" %}
-          <li><a href="mailto:{{ site.social.email }}" class="icon fa-envelope-o"><span class="label">Email</span></a></li>
-        {% endif %}
-      </ul>
-    {% endif %}
-  </header>
+  <section id="thumbnails">
+    {% assign images = site.static_files | where_not: "image", false %}
+    {% assign folders = "" | split: "," %}
 
----
-layout: default
----
-
-<div id="main">
-    <section id="thumbnails">
-        {% assign images = site.static_files | where_not: "image", false %}
-        {% assign folders = "" | split: "," %}
-
-        {% for image in images %}
-            {% if image.path contains 'gallery/' %}
-                {% assign parts = image.path | split: '/' %}
-                {% assign folder_name = parts[2] %}
-                
-                {% unless folders contains folder_name %}
-                    {% assign folders = folders | push: folder_name %}
-                    <article>
-                        {% comment %} 
-                           关键改动：去掉 thumbnail 类名，换成 custom-nav，
-                           彻底绕过模板 JS 的拦截。
-                        {% endcomment %}
-                        <a href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}" class="custom-nav">
-                            <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
-                        </a>
-                        <h2>{{ folder_name | upcase }}</h2>
-                    </article>
-                {% endunless %}
-            {% endif %}
-        {% endfor %}
-    </section>
+    {% for image in images %}
+      {% if image.path contains 'gallery/' %}
+        {% assign parts = image.path | split: '/' %}
+        {% assign folder_name = parts[2] %}
+        
+        {% unless folders contains folder_name %}
+          {% assign folders = folders | push: folder_name %}
+          <article>
+            {% comment %} 
+               使用你认为最成功的强制跳转逻辑 
+            {% endcomment %}
+            <a class="thumbnail" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
+              <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
+            </a>
+            <h2>{{ folder_name | upcase }}</h2>
+          </article>
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  </section>
 </div>
 
 <style>
-    /* 强行让右侧合集列表显示出来，因为没了背景图，我们需要它们一直可见 */
-    #thumbnails {
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-    
-    /* 强制隐藏中间那个一直转圈圈的背景加载器 */
-    #viewer, .poptrox-popup, .poptrox-overlay {
-        display: none !important;
-    }
+  /* 1. 既然不要封面，强行隐藏中间那个一直转圈的大背景层 */
+  #viewer, .poptrox-popup, .poptrox-overlay {
+    display: none !important;
+  }
 
-    /* 让右侧的点击区域铺满，方便点击 */
-    .custom-nav {
-        display: block;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-    }
+  /* 2. 强制让右侧缩略图区域显示出来（防止被脚本隐藏） */
+  #thumbnails {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  /* 3. 确保每个合集方块都是可见的 */
+  #thumbnails article {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* 4. 调整布局，让右侧合集在没有背景的情况下看起来更自然 */
+  #main {
+    width: 100% !important;
+    padding: 2em;
+  }
 </style>
-
-  <footer id="footer">
-    <ul class="copyright">
-      <li>{{ site.copyright }}</li>
-      <li>Powered by <a href="https://jekyllrb.com/">Jekyll</a> and <a href="https://github.com/ElasticDesigns/jekyll-lens">Jekyll Lens</a></li>
-    </ul>
-  </footer>
-</div>
