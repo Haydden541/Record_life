@@ -393,7 +393,14 @@ var main = (function($) { var _ = {
 			_.$thumbnails
 				.on('click', '.thumbnail', function(event) {
 
-					var $this = $(this);
+					var $this = $(this),
+                        href = $this.attr('href');
+
+                    // --- 改动开始：如果是跳转到合集的 html 页面，不拦截点击 ---
+                    if (href && href.indexOf('.html') !== -1) {
+                        return; 
+                    }
+                    // --- 改动结束 ---
 
 					// Stop other events.
 						event.preventDefault();
@@ -414,7 +421,14 @@ var main = (function($) { var _ = {
 
 					var	$this = $(this),
 						$thumbnail = $this.children('.thumbnail'),
+                        href = $thumbnail.attr('href'),
 						s;
+
+                    // --- 改动开始：如果是合集链接，不生成幻灯片图片对象 ---
+                    if (href && href.indexOf('.html') !== -1) {
+                        return true; // continue to next element
+                    }
+                    // --- 改动结束 ---
 
 					// Slide object.
 						s = {
@@ -435,9 +449,9 @@ var main = (function($) { var _ = {
 	 						s.$slide = $('<div class="slide"><div class="caption"></div><div class="image"></div></div>');
 
 	 					// Image.
- 							s.$slideImage = s.$slide.children('.image');
+ 							s.$slideImage = s.$slide.children('.image');
 
- 							// Set background stuff.
+ 							// Set background stuff.
 	 							s.$slideImage
 		 							.css('background-image', '')
 		 							.css('background-position', ($thumbnail.data('position') || 'center'));
