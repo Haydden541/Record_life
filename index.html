@@ -28,7 +28,7 @@ layout: default
     {% endif %}
   </header>
 
- <section id="thumbnails">
+<section id="thumbnails">
   {% assign images = site.static_files | where_not: "image", false %}
   {% assign folders = "" | split: "," %}
 
@@ -39,13 +39,13 @@ layout: default
       
       {% unless folders contains folder_name %}
         {% assign folders = folders | push: folder_name %}
-        <article style="cursor: pointer;" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
-          {% comment %} 
-             注意：这里去掉了 class="thumbnail"，彻底避开脚本拦截 
-          {% endcomment %}
-          <div class="custom-cover-wrapper">
-             <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" style="width: 100%; height: auto; display: block;" />
-          </div>
+        {% comment %} 
+           保留 article 结构但通过 data-skip 标记或修改类名来尝试避开背景加载逻辑
+        {% endcomment %}
+        <article class="folder-item">
+          <a class="thumbnail" href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}" data-poptrox="ignore">
+            <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
+          </a>
           <h2>{{ folder_name | upcase }} (点击进入)</h2>
         </article>
       {% endunless %}
@@ -54,19 +54,17 @@ layout: default
 </section>
 
 <style>
-  /* 修复首页布局，确保封面正常显示 */
-  #thumbnails article {
+  /* 强制显示首页的 article，防止被脚本隐藏 */
+  #thumbnails article.folder-item {
     opacity: 1 !important;
     transform: none !important;
     visibility: visible !important;
+    display: block !important;
   }
-  .custom-cover-wrapper {
-    overflow: hidden;
-    background: #222;
-    aspect-ratio: 1 / 1; /* 保持正方形封面 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  
+  /* 首页大图背景的修正：如果还在转圈，强制给中间加一个背景 */
+  #viewer .inner .toggle {
+    display: none !important; /* 隐藏中间那个转圈的切换按钮 */
   }
 </style>
 
