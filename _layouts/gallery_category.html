@@ -1,19 +1,19 @@
 ---
 layout: default
 ---
-<div id="sub-container">
-  <header id="sub-header">
+<div id="category-container">
+  <header id="category-nav">
     <h1>{{ page.title }}</h1>
-    <a href="{{ '/' | relative_url }}" class="back-btn">← 返回首页</a>
+    <a href="{{ '/' | relative_url }}" class="back-link">BACK TO HOME</a>
   </header>
 
-  <section id="photo-grid">
+  <section id="photo-wall">
     {% assign current_folder = page.dir | split: '/' | last %}
     {% for image in site.static_files %}
       {% if image.path contains 'gallery' and image.path contains current_folder %}
         {% unless image.path contains 'index.html' or image.path contains 'background' %}
-        <div class="photo-card">
-          <a href="javascript:void(0);" class="img-link" onclick="openLightbox('{{ image.path | relative_url }}')">
+        <div class="photo-box">
+          <a href="javascript:void(0);" onclick="openImg('{{ image.path | relative_url }}')">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
         </div>
@@ -23,78 +23,72 @@ layout: default
   </section>
 </div>
 
-<div id="lightbox" onclick="this.style.display='none'">
-  <img id="lightbox-img" src="" alt="Large View" />
+<div id="img-viewer" onclick="this.style.display='none'">
+  <img id="full-img" src="" />
 </div>
 
 <script>
-  function openLightbox(src) {
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
+  function openImg(src) {
+    document.getElementById('full-img').src = src;
+    document.getElementById('img-viewer').style.display = 'flex';
   }
 </script>
 
 <style>
-  /* 1. 基础隐藏 */
-  #main, #viewer, .poptrox-popup, .poptrox-overlay, #header { display: none !important; }
+  #main, #viewer, #header, .poptrox-popup { display: none !important; }
 
-  /* 2. 容器布局 */
-  #sub-container {
+  #category-container {
     width: 100%;
     min-height: 100vh;
     background: #111;
-    padding: 60px 5% 100px;
+    padding: 60px 4%;
     box-sizing: border-box;
-    text-align: center;
   }
 
-  /* 3. 放大缩略图：每排 3 个或 4 个，让图看起来很大 */
-  #photo-grid {
+  #category-nav { text-align: center; margin-bottom: 60px; }
+  #category-nav h1 { color: #fff; font-size: 2.5em; margin-bottom: 20px; }
+  .back-link {
+    color: #666 !important;
+    text-decoration: none;
+    border: 1px solid #333;
+    padding: 8px 25px;
+    border-radius: 40px;
+  }
+  .back-link:hover { color: #fff !important; border-color: #fff; }
+
+  #photo-wall {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 1400px;
-    margin: 0 auto;
-    gap: 30px; /* 增加间距感 */
+    gap: 25px;
   }
 
-  .photo-card {
-    /* 核心修改：25% 宽度代表一排最多 4 个，如果你想更大可以改成 33% (一排 3 个) */
-    flex: 0 1 calc(25% - 30px); 
-    min-width: 280px; /* 限制最小宽度，保证不缩得太小 */
+  .photo-box {
+    /* 这里的 31% 让照片在电脑屏幕上显得非常震撼 */
+    flex: 0 1 calc(31% - 25px);
+    min-width: 420px;
   }
 
-  .img-link img {
+  .photo-box img {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
-    display: block;
     border-radius: 8px;
-    transition: transform 0.3s ease;
+    display: block;
+    transition: opacity 0.3s;
   }
-  .img-link:hover img { transform: scale(1.02); }
+  .photo-box img:hover { opacity: 0.8; }
 
-  /* 4. 灯箱大图样式：直接在当前页面覆盖显示 */
-  #lightbox {
+  /* 大图查看层样式 */
+  #img-viewer {
     display: none;
     position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.95);
     z-index: 9999;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
     cursor: zoom-out;
   }
-  #lightbox-img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 4px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
-  }
-
-  /* 响应式：手机端一排 1 个，保持大尺寸 */
-  @media (max-width: 768px) {
-    .photo-card { flex: 0 1 100%; }
-  }
+  #full-img { max-width: 95%; max-height: 95%; border-radius: 4px; }
 </style>
