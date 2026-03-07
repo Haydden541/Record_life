@@ -4,6 +4,7 @@ layout: default
 <div id="main">
   <header id="header">
     <h1>{{ page.title }}</h1>
+    {% comment %} 使用 relative_url 自动处理路径，防止 404 {% endcomment %}
     <a href="{{ '/' | relative_url }}" class="back-button">← 返回首页</a>
   </header>
 
@@ -11,9 +12,9 @@ layout: default
     {% assign current_folder = page.dir | split: '/' | last %}
     {% for image in site.static_files %}
       {% if image.path contains 'gallery/' and image.path contains current_folder %}
-        {% comment %} 排除掉目录下的 index.html 本身 {% endcomment %}
         {% unless image.path contains 'index.html' %}
         <article>
+          {% comment %} 核心修正：去掉 site.baseurl，改用 relative_url {% endcomment %}
           <a class="thumbnail" href="{{ image.path | relative_url }}">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
@@ -34,8 +35,5 @@ layout: default
     border-radius: 4px;
     text-decoration: none;
     color: #666 !important;
-  }
-  .back-button:hover {
-    background: #f4f4f4;
   }
 </style>
