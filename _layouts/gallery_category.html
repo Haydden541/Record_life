@@ -1,10 +1,10 @@
 ---
 layout: default
 ---
-<div id="category-container">
-  <header id="category-nav">
+<div id="category-wrapper">
+  <header id="category-header">
     <h1>{{ page.title }}</h1>
-    <a href="{{ '/' | relative_url }}" class="back-link">BACK TO HOME</a>
+    <a href="{{ '/' | relative_url }}" class="back-home-btn">BACK TO HOME</a>
   </header>
 
   <section id="photo-wall">
@@ -12,7 +12,7 @@ layout: default
     {% for image in site.static_files %}
       {% if image.path contains 'gallery' and image.path contains current_folder %}
         {% unless image.path contains 'index.html' or image.path contains 'background' %}
-        <div class="photo-box">
+        <div class="photo-card">
           <a href="javascript:void(0);" onclick="openImg('{{ image.path | relative_url }}')">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
@@ -35,60 +35,108 @@ layout: default
 </script>
 
 <style>
-  #main, #viewer, #header, .poptrox-popup { display: none !important; }
+  /* 1. 基础清理，确保不被模板干扰 */
+  #main, #viewer, #header, .poptrox-popup, .poptrox-overlay { 
+    display: none !important; 
+  }
 
-  #category-container {
+  body, html {
+    margin: 0; padding: 0;
+    background: #000;
     width: 100%;
     min-height: 100vh;
-    background: #111;
-    padding: 60px 4%;
+  }
+
+  /* 2. 创建子页面的平铺背景层 */
+  #category-wrapper::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    
+    /* 这里你可以用和首页一样的背景图，或者换一张 */
+    background-image: url('{{ "/gallery/BJD/cover_beijing.jpg" | relative_url }}'); 
+    
+    background-repeat: repeat;    /* 居中平铺 */
+    background-position: center;
+    background-size: 1800px;       /* 背景块大小 */
+    
+    opacity: 0.5;                 /* 子页面建议透明度稍低(30%)，更衬托照片 */
+    z-index: -1;
+    filter: blur(2px);            /* 稍微模糊，增加空间感 */
+  }
+
+  /* 3. 内容容器布局 */
+  #category-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 60px 4% 120px;
     box-sizing: border-box;
+    z-index: 1;
   }
 
-  #category-nav { text-align: center; margin-bottom: 60px; }
-  #category-nav h1 { color: #fff; font-size: 2.5em; margin-bottom: 20px; }
-  .back-link {
-    color: #666 !important;
+  #category-header { text-align: center; margin-bottom: 60px; }
+  #category-header h1 { 
+    color: #fff; 
+    font-size: 2.8em; 
+    margin-bottom: 20px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .back-home-btn {
+    display: inline-block;
+    color: #999 !important;
     text-decoration: none;
-    border: 1px solid #333;
-    padding: 8px 25px;
-    border-radius: 40px;
+    border: 1px solid #444;
+    padding: 10px 30px;
+    border-radius: 50px;
+    transition: all 0.3s;
   }
-  .back-link:hover { color: #fff !important; border-color: #fff; }
+  .back-home-btn:hover { color: #fff !important; border-color: #fff; background: rgba(255,255,255,0.1); }
 
+  /* 4. 照片墙网格 (电脑端大尺寸) */
   #photo-wall {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 25px;
+    max-width: 1600px;
+    margin: 0 auto;
+    gap: 30px;
   }
 
-  .photo-box {
-    /* 这里的 31% 让照片在电脑屏幕上显得非常震撼 */
-    flex: 0 1 calc(31% - 25px);
-    min-width: 420px;
+  .photo-card {
+    /* 31% 代表电脑上一排 3 个，每张图非常大 */
+    flex: 0 1 calc(31% - 30px);
+    min-width: 400px;
   }
 
-  .photo-box img {
+  .photo-card img {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 8px;
     display: block;
-    transition: opacity 0.3s;
+    transition: transform 0.4s ease, opacity 0.3s;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
   }
-  .photo-box img:hover { opacity: 0.8; }
+  .photo-card img:hover { transform: scale(1.03); opacity: 0.9; }
 
-  /* 大图查看层样式 */
+  /* 5. 大图查看层 */
   #img-viewer {
     display: none;
     position: fixed;
     top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0,0,0,0.96);
     z-index: 9999;
     justify-content: center;
     align-items: center;
     cursor: zoom-out;
   }
-  #full-img { max-width: 95%; max-height: 95%; border-radius: 4px; }
+  #full-img { max-width: 92%; max-height: 92%; border-radius: 4px; box-shadow: 0 0 50px #000; }
+
+  /* 移动端适配 */
+  @media (max-width: 768px) {
+    .photo-card { flex: 0 1 100%; min-width: 100%; }
+    #category-header h1 { font-size: 2em; }
+  }
 </style>
