@@ -27,32 +27,38 @@ layout: default
 </div>
 
 <style>
-  /* 1. 基础清理 */
-  #main, #viewer, #header, .poptrox-popup { display: none !important; }
+  /* 1. 彻底清除模板原始层 */
+  #main, #viewer, #header, .poptrox-popup, .poptrox-overlay { 
+    display: none !important; 
+  }
 
   body, html {
     margin: 0; padding: 0;
-    background: #000; /* 纯黑底色 */
+    background: #000; /* 纯黑底色，衬托透明背景 */
     width: 100%;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
-  /* 2. 创建半透明平铺背景 */
+  /* 2. 创建居中平铺的背景层 */
   #full-width-container::before {
     content: "";
-    position: fixed; /* 固定背景，不随滚动条移动 */
+    position: fixed; /* 固定位置，不随滚动条移动 */
     top: 0; left: 0;
     width: 100%; height: 100%;
     
-    /* 替换成你的背景图路径 */
+    /* 【修改这里】替换为你想要作为背景的图片路径 */
     background-image: url('{{ "/gallery/beijing/cover_beijing.jpg" | relative_url }}'); 
     
-    background-repeat: no-repeat;
-    background-size: cover;    /* 放大平铺撑满全屏 */
-    background-position: center;
-    opacity: 0.5;              /* 50% 透明度 */
-    z-index: -1;               /* 放在最底层 */
+    background-repeat: repeat;    /* 开启平铺 */
+    background-position: center;  /* 从中心开始向四周平铺 */
+    
+    /* 【修改这里】控制背景图的大小。数值越大，背景图平铺的单块面积越大 */
+    background-size: 600px;       
+    
+    opacity: 0.5;                 /* 50% 透明度 */
+    z-index: -1;                  /* 置于底层 */
+    filter: blur(1px);            /* 极轻微模糊，增加景深感 */
   }
 
   /* 3. 内容容器布局 */
@@ -62,30 +68,34 @@ layout: default
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 80px 5%;
+    padding: 100px 5%;
     box-sizing: border-box;
     z-index: 1;
   }
 
+  /* 4. 网格排列控制 */
   #main-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-    max-width: 1800px;
-    gap: 40px;
+    max-width: 1800px; /* 适配超宽屏 */
+    gap: 50px;         /* 卡片间距 */
   }
 
-  /* 4. 卡片样式保持大尺寸 */
+  /* 5. 卡片样式（电脑端大尺寸） */
   .folder-card {
-    flex: 0 1 calc(30% - 40px);
+    /* 30% 约等于一排 3 个，每张图会非常大 */
+    flex: 0 1 calc(30% - 50px);
     min-width: 380px;
     cursor: pointer;
     text-align: center;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
   }
 
-  .folder-card:hover { transform: translateY(-10px); }
+  .folder-card:hover { 
+    transform: translateY(-10px); 
+  }
 
   .img-box {
     width: 100%;
@@ -93,8 +103,9 @@ layout: default
     overflow: hidden;
     border-radius: 12px;
     background: #222;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.7); /* 加深阴影，让卡片从背景中浮现 */
-    border: 1px solid rgba(255,255,255,0.1); /* 微弱边框线 */
+    /* 强化投影，让卡片在半透明背景上更有立体感 */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); 
+    border: 1px solid rgba(255,255,255,0.05);
   }
 
   .img-box img {
@@ -105,10 +116,18 @@ layout: default
   }
 
   .folder-label {
-    margin-top: 20px;
+    margin-top: 25px;
     color: #fff;
-    font-size: 1.5em;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* 增加文字投影防止背景干扰 */
+    font-size: 1.6em;
+    font-weight: 600;
+    letter-spacing: 3px;
+    /* 文字投影，确保在背景图复杂时依然清晰 */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+
+  /* 移动端简单适配 */
+  @media (max-width: 768px) {
+    .folder-card { flex: 0 1 100%; min-width: 100%; }
+    #full-width-container { padding: 40px 20px; }
   }
 </style>
