@@ -2,8 +2,8 @@
 layout: default
 ---
 
-<div id="main">
-  <section id="thumbnails">
+<div id="main-container">
+  <section id="thumbnails-grid">
     {% assign images = site.static_files | where_not: "image", false %}
     {% assign folders = "" | split: "," %}
 
@@ -14,15 +14,12 @@ layout: default
         
         {% unless folders contains folder_name %}
           {% assign folders = folders | push: folder_name %}
-          <article>
-            {% comment %} 
-               使用你认为最成功的强制跳转逻辑 
-            {% endcomment %}
-            <a class="thumbnail" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
+          <div class="grid-item">
+            <a class="thumbnail-link" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
               <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
+              <div class="folder-title">{{ folder_name | upcase }}</div>
             </a>
-            <h2>{{ folder_name | upcase }}</h2>
-          </article>
+          </div>
         {% endunless %}
       {% endif %}
     {% endfor %}
@@ -30,27 +27,71 @@ layout: default
 </div>
 
 <style>
-  /* 1. 既然不要封面，强行隐藏中间那个一直转圈的大背景层 */
-  #viewer, .poptrox-popup, .poptrox-overlay {
+  /* 1. 彻底清空原有模板对布局的影响 */
+  #main, #viewer, .poptrox-popup, .poptrox-overlay {
     display: none !important;
   }
 
-  /* 2. 强制让右侧缩略图区域显示出来（防止被脚本隐藏） */
-  #thumbnails {
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
+  /* 2. 容器居中与背景 */
+  #main-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center; /* 横向居中 */
+    align-items: center;     /* 纵向居中 */
+    padding: 50px 20px;
+    background: #111;        /* 可以根据喜好改背景色 */
   }
 
-  /* 3. 确保每个合集方块都是可见的 */
-  #thumbnails article {
-    opacity: 1 !important;
-    transform: none !important;
+  /* 3. 网格布局配置 */
+  #thumbnails-grid {
+    display: flex;
+    flex-wrap: wrap;        /* 自动换行 */
+    justify-content: center; /* 子元素居中排列 */
+    max-width: 1200px;      /* 限制最大宽度，保证一排 5 个左右 */
+    gap: 20px;              /* 缩略图之间的间距 */
   }
 
-  /* 4. 调整布局，让右侧合集在没有背景的情况下看起来更自然 */
-  #main {
-    width: 100% !important;
-    padding: 2em;
+  /* 4. 每个合集项的样式 (每行 5 个) */
+  .grid-item {
+    flex: 0 1 calc(20% - 20px); /* 核心：20% 宽度代表一排 5 个 */
+    min-width: 150px;           /* 手机端不会缩得太小 */
+    max-width: 200px;
+    transition: transform 0.3s ease;
+  }
+
+  .grid-item:hover {
+    transform: scale(1.05);     /* 鼠标悬停微放大 */
+  }
+
+  /* 5. 缩略图图片处理 */
+  .thumbnail-link {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .thumbnail-link img {
+    width: 100%;
+    aspect-ratio: 1 / 1;        /* 强制正方形，整齐统一 */
+    object-fit: cover;          /* 图片填充不拉伸 */
+    border-radius: 8px;         /* 圆角 */
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+
+  /* 6. 文字标题样式 */
+  .folder-title {
+    margin-top: 10px;
+    color: #eee;
+    font-size: 0.9em;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  /* 响应式调整：屏幕太小时，一排显示 2-3 个 */
+  @media (max-width: 768px) {
+    .grid-item {
+      flex: 0 1 calc(33.33% - 20px);
+    }
   }
 </style>
