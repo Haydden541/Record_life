@@ -1,25 +1,26 @@
 ---
 layout: default
 ---
+<div id="sub-container">
+  <header id="sub-header">
+    <h1>{{ page.title }}</h1>
+    <a href="{{ '/' | relative_url }}" class="back-btn">← 返回首页</a>
+  </header>
 
-<div id="main-container">
-  <section id="thumbnails-grid">
-    {% assign images = site.static_files | where_not: "image", false %}
-    {% assign folders = "" | split: "," %}
-
-    {% for image in images %}
-      {% if image.path contains 'gallery/' %}
-        {% assign parts = image.path | split: '/' %}
-        {% assign folder_name = parts[2] %}
-        
-        {% unless folders contains folder_name %}
-          {% assign folders = folders | push: folder_name %}
-          <div class="grid-item">
-            <a class="thumbnail-link" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
-              <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
-              <div class="folder-title">{{ folder_name | upcase }}</div>
-            </a>
-          </div>
+  <section id="photo-grid">
+    {% assign current_folder = page.dir | split: '/' | last %}
+    {% for image in site.static_files %}
+      {% if image.path contains 'gallery' and image.path contains current_folder %}
+        {% unless image.path contains 'index.html' or image.path contains 'background' %}
+        <div class="photo-card">
+          {% comment %} 
+             关键：改用 target="_blank" 直接在正上方或新窗口打开原图，
+             彻底绕过会导致白边和卡顿的模板脚本。
+          {% endcomment %}
+          <a href="{{ image.path | relative_url }}" target="_blank" class="img-link">
+            <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
+          </a>
+        </div>
         {% endunless %}
       {% endif %}
     {% endfor %}
@@ -27,71 +28,63 @@ layout: default
 </div>
 
 <style>
-  /* 1. 彻底清空原有模板对布局的影响 */
-  #main, #viewer, .poptrox-popup, .poptrox-overlay {
+  /* 1. 隐藏干扰元素 */
+  #main, #viewer, .poptrox-popup, .poptrox-overlay, #header {
     display: none !important;
   }
 
-  /* 2. 容器居中与背景 */
-  #main-container {
-    width: 100%;
+  /* 2. 子页面布局 */
+  #sub-container {
+    width: 100vw;
     min-height: 100vh;
-    display: flex;
-    justify-content: center; /* 横向居中 */
-    align-items: center;     /* 纵向居中 */
-    padding: 50px 20px;
-    background: #111;        /* 可以根据喜好改背景色 */
-  }
-
-  /* 3. 网格布局配置 */
-  #thumbnails-grid {
-    display: flex;
-    flex-wrap: wrap;        /* 自动换行 */
-    justify-content: center; /* 子元素居中排列 */
-    max-width: 1200px;      /* 限制最大宽度，保证一排 5 个左右 */
-    gap: 20px;              /* 缩略图之间的间距 */
-  }
-
-  /* 4. 每个合集项的样式 (每行 5 个) */
-  .grid-item {
-    flex: 0 1 calc(20% - 20px); /* 核心：20% 宽度代表一排 5 个 */
-    min-width: 150px;           /* 手机端不会缩得太小 */
-    max-width: 200px;
-    transition: transform 0.3s ease;
-  }
-
-  .grid-item:hover {
-    transform: scale(1.05);     /* 鼠标悬停微放大 */
-  }
-
-  /* 5. 缩略图图片处理 */
-  .thumbnail-link {
-    display: block;
-    text-decoration: none;
+    background: #111;
+    padding: 60px 20px;
+    box-sizing: border-box;
     text-align: center;
   }
 
-  .thumbnail-link img {
+  /* 3. 头部标题与返回按钮 */
+  #sub-header { margin-bottom: 50px; }
+  #sub-header h1 { color: #fff; font-size: 1.8em; margin-bottom: 15px; }
+  .back-btn {
+    display: inline-block;
+    color: #666 !important;
+    text-decoration: none;
+    font-size: 0.85em;
+    padding: 6px 20px;
+    border: 1px solid #333;
+    border-radius: 30px;
+    transition: all 0.3s;
+  }
+  .back-btn:hover { border-color: #eee; color: #eee !important; }
+
+  /* 4. 照片网格 (一排 5 个) */
+  #photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    gap: 15px;
+  }
+
+  .photo-card {
+    flex: 0 1 calc(20% - 15px); /* 固定 5 列布局 */
+    min-width: 150px;
+  }
+
+  /* 5. 图片样式：统一正方形，无边框 */
+  .img-link { display: block; width: 100%; overflow: hidden; border-radius: 4px; }
+  .img-link img {
     width: 100%;
-    aspect-ratio: 1 / 1;        /* 强制正方形，整齐统一 */
-    object-fit: cover;          /* 图片填充不拉伸 */
-    border-radius: 8px;         /* 圆角 */
-    border: 2px solid rgba(255,255,255,0.1);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
   }
+  .img-link:hover img { transform: scale(1.1); }
 
-  /* 6. 文字标题样式 */
-  .folder-title {
-    margin-top: 10px;
-    color: #eee;
-    font-size: 0.9em;
-    font-weight: bold;
-    letter-spacing: 1px;
-  }
-
-  /* 响应式调整：屏幕太小时，一排显示 2-3 个 */
-  @media (max-width: 768px) {
-    .grid-item {
-      flex: 0 1 calc(33.33% - 20px);
-    }
-  }
+  /* 响应式适配 */
+  @media (max-width: 1024px) { .photo-card { flex: 0 1 calc(33.33% - 15px); } }
+  @media (max-width: 600px) { .photo-card { flex: 0 1 calc(50% - 15px); } }
 </style>
