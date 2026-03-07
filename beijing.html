@@ -1,0 +1,23 @@
+---
+layout: default
+---
+<div id="main">
+  <header id="header">
+    <h1>北京合集</h1>
+    <a href="/">← 返回首页</a>
+  </header>
+
+  <section id="thumbnails">
+    {% assign gallery = site.static_files | where: "image", true %}
+    {% for image in gallery %}
+      {% comment %} 这里只显示文件名里带有 'beijing' 的照片 {% endcomment %}
+      {% if image.name contains 'beijing' and image.name contains 'cover_' == false %}
+        <article>
+          <a class="thumbnail" href="{{ site.gallery_dir }}/{{ image.name }}">
+            <img src="{{ site.gallery_dir }}/{{ image.name }}" alt="{{ image.basename }}" />
+          </a>
+        </article>
+      {% endif %}
+    {% endfor %}
+  </section>
+</div>
