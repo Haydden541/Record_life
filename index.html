@@ -39,19 +39,36 @@ layout: default
       
       {% unless folders contains folder_name %}
         {% assign folders = folders | push: folder_name %}
-        <article>
+        <article style="cursor: pointer;" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
           {% comment %} 
-             使用 relative_url 自动处理基础路径，防止路径重复
+             注意：这里去掉了 class="thumbnail"，彻底避开脚本拦截 
           {% endcomment %}
-          <a class="thumbnail" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
-  <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
-</a>
-          <h2>{{ folder_name | upcase }}</h2>
+          <div class="custom-cover-wrapper">
+             <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" style="width: 100%; height: auto; display: block;" />
+          </div>
+          <h2>{{ folder_name | upcase }} (点击进入)</h2>
         </article>
       {% endunless %}
     {% endif %}
   {% endfor %}
 </section>
+
+<style>
+  /* 修复首页布局，确保封面正常显示 */
+  #thumbnails article {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+  .custom-cover-wrapper {
+    overflow: hidden;
+    background: #222;
+    aspect-ratio: 1 / 1; /* 保持正方形封面 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
 
   <footer id="footer">
     <ul class="copyright">
