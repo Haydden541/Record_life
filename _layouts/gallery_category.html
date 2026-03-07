@@ -4,23 +4,20 @@ layout: default
 <div id="main">
   <header id="header">
     <h1>{{ page.title }}</h1>
-    {% comment %} 使用 relative_url 是最安全的做法 {% endcomment %}
-    <a href="{{ '/' | relative_url }}" style="border: 1px solid #ddd; padding: 5px 10px; text-decoration: none; border-radius: 4px; color: #666 !important;">← 返回首页</a>
+    <a href="{{ '/' | relative_url }}" style="border: 1px solid #ddd; padding: 5px 15px; text-decoration: none; border-radius: 4px; color: #666 !important; background: #fff;">← 返回首页</a>
   </header>
 
   <section id="thumbnails">
     {% assign current_folder = page.dir | split: '/' | last %}
     {% for image in site.static_files %}
-      {% comment %} 
-         逻辑：路径包含 gallery/文件夹名，且不是 index.html，也不是封面图 
-      {% endcomment %}
+      {% comment %} 只抓取当前文件夹下的图，且严格排除 background 开头的模板图 {% endcomment %}
       {% if image.path contains 'gallery' and image.path contains current_folder %}
-        {% unless image.path contains 'index.html' or image.path contains 'cover_' %}
+        {% unless image.path contains 'index.html' or image.path contains 'background' %}
         <article>
           <a class="thumbnail" href="{{ image.path | relative_url }}">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
-          <h2>{{ image.basename | replace: "_", " " }}</h2>
+          <h2>{{ image.basename }}</h2>
         </article>
         {% endunless %}
       {% endif %}
