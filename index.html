@@ -43,7 +43,7 @@ layout: default
           {% comment %} 
              使用 relative_url 自动处理基础路径，防止路径重复
           {% endcomment %}
-          <a class="thumbnail" href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}">
+          <a class="thumbnail" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
   <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
 </a>
           <h2>{{ folder_name | upcase }}</h2>
