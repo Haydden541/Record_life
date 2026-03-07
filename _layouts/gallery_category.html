@@ -4,17 +4,19 @@ layout: default
 <div id="main">
   <header id="header">
     <h1>{{ page.title }}</h1>
-    {% comment %} 使用 relative_url 自动处理路径，防止 404 {% endcomment %}
-    <a href="{{ '/' | relative_url }}" class="back-button">← 返回首页</a>
+    {% comment %} 使用 relative_url 是最安全的做法 {% endcomment %}
+    <a href="{{ '/' | relative_url }}" style="border: 1px solid #ddd; padding: 5px 10px; text-decoration: none; border-radius: 4px; color: #666 !important;">← 返回首页</a>
   </header>
 
   <section id="thumbnails">
     {% assign current_folder = page.dir | split: '/' | last %}
     {% for image in site.static_files %}
-      {% if image.path contains 'gallery/' and image.path contains current_folder %}
-        {% unless image.path contains 'index.html' %}
+      {% comment %} 
+         逻辑：路径包含 gallery/文件夹名，且不是 index.html，也不是封面图 
+      {% endcomment %}
+      {% if image.path contains 'gallery' and image.path contains current_folder %}
+        {% unless image.path contains 'index.html' or image.path contains 'cover_' %}
         <article>
-          {% comment %} 核心修正：去掉 site.baseurl，改用 relative_url {% endcomment %}
           <a class="thumbnail" href="{{ image.path | relative_url }}">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
@@ -25,15 +27,3 @@ layout: default
     {% endfor %}
   </section>
 </div>
-
-<style>
-  .back-button {
-    display: inline-block;
-    margin: 10px 0 20px 0;
-    padding: 5px 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #666 !important;
-  }
-</style>
