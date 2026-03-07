@@ -2,8 +2,8 @@
 layout: default
 ---
 
-<div id="main-container">
-  <section id="thumbnails-grid">
+<div id="grid-container">
+  <section id="custom-grid">
     {% assign images = site.static_files | where_not: "image", false %}
     {% assign folders = "" | split: "," %}
 
@@ -14,11 +14,11 @@ layout: default
         
         {% unless folders contains folder_name %}
           {% assign folders = folders | push: folder_name %}
-          <div class="grid-item">
-            <a class="thumbnail-link" href="javascript:void(0);" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
+          <div class="grid-card" onclick="window.location.href='{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}';">
+            <div class="img-wrapper">
               <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
-              <div class="folder-title">{{ folder_name | upcase }}</div>
-            </a>
+            </div>
+            <p class="grid-label">{{ folder_name | upcase }}</p>
           </div>
         {% endunless %}
       {% endif %}
@@ -27,71 +27,76 @@ layout: default
 </div>
 
 <style>
-  /* 1. 彻底清空原有模板对布局的影响 */
-  #main, #viewer, .poptrox-popup, .poptrox-overlay {
+  /* 1. 暴力隐藏所有会干扰跳转和布局的模板原始层 */
+  #main, #viewer, .poptrox-popup, .poptrox-overlay, #header {
     display: none !important;
   }
 
-  /* 2. 容器居中与背景 */
-  #main-container {
-    width: 100%;
+  /* 2. 全屏容器配置 */
+  #grid-container {
+    width: 100vw;
     min-height: 100vh;
+    background: #111;
     display: flex;
-    justify-content: center; /* 横向居中 */
-    align-items: center;     /* 纵向居中 */
-    padding: 50px 20px;
-    background: #111;        /* 可以根据喜好改背景色 */
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    box-sizing: border-box;
   }
 
-  /* 3. 网格布局配置 */
-  #thumbnails-grid {
+  /* 3. 网格布局：居中并自动换行 */
+  #custom-grid {
     display: flex;
-    flex-wrap: wrap;        /* 自动换行 */
-    justify-content: center; /* 子元素居中排列 */
-    max-width: 1200px;      /* 限制最大宽度，保证一排 5 个左右 */
-    gap: 20px;              /* 缩略图之间的间距 */
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    gap: 25px; /* 合集之间的间距 */
   }
 
-  /* 4. 每个合集项的样式 (每行 5 个) */
-  .grid-item {
-    flex: 0 1 calc(20% - 20px); /* 核心：20% 宽度代表一排 5 个 */
-    min-width: 150px;           /* 手机端不会缩得太小 */
-    max-width: 200px;
-    transition: transform 0.3s ease;
-  }
-
-  .grid-item:hover {
-    transform: scale(1.05);     /* 鼠标悬停微放大 */
-  }
-
-  /* 5. 缩略图图片处理 */
-  .thumbnail-link {
-    display: block;
-    text-decoration: none;
+  /* 4. 每个合集卡片的样式 (每行固定 5 个) */
+  .grid-card {
+    flex: 0 1 calc(20% - 25px); /* 这里的 20% 确保了一排 5 个 */
+    min-width: 160px;
+    cursor: pointer;
     text-align: center;
+    transition: transform 0.2s ease;
   }
 
-  .thumbnail-link img {
+  .grid-card:hover {
+    transform: translateY(-5px); /* 悬停微动感 */
+  }
+
+  /* 5. 图片容器：强制正方形并去掉任何边框 */
+  .img-wrapper {
     width: 100%;
-    aspect-ratio: 1 / 1;        /* 强制正方形，整齐统一 */
-    object-fit: cover;          /* 图片填充不拉伸 */
-    border-radius: 8px;         /* 圆角 */
-    border: 2px solid rgba(255,255,255,0.1);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #222;
   }
 
-  /* 6. 文字标题样式 */
-  .folder-title {
-    margin-top: 10px;
-    color: #eee;
-    font-size: 0.9em;
-    font-weight: bold;
+  .img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: none !important; /* 彻底去除白边框 */
+  }
+
+  /* 6. 合集文字标题 */
+  .grid-label {
+    margin-top: 12px;
+    color: #aaa;
+    font-size: 0.85em;
+    font-weight: 500;
     letter-spacing: 1px;
   }
 
-  /* 响应式调整：屏幕太小时，一排显示 2-3 个 */
-  @media (max-width: 768px) {
-    .grid-item {
-      flex: 0 1 calc(33.33% - 20px);
-    }
+  /* 响应式：屏幕窄时自动调整为一排 3 个或 2 个 */
+  @media (max-width: 980px) {
+    .grid-card { flex: 0 1 calc(33.33% - 25px); }
+  }
+  @media (max-width: 480px) {
+    .grid-card { flex: 0 1 calc(50% - 25px); }
   }
 </style>
