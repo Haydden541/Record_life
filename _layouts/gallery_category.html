@@ -13,11 +13,7 @@ layout: default
       {% if image.path contains 'gallery' and image.path contains current_folder %}
         {% unless image.path contains 'index.html' or image.path contains 'background' %}
         <div class="photo-card">
-          {% comment %} 
-             关键：改用 target="_blank" 直接在正上方或新窗口打开原图，
-             彻底绕过会导致白边和卡顿的模板脚本。
-          {% endcomment %}
-          <a href="{{ image.path | relative_url }}" target="_blank" class="img-link">
+          <a href="javascript:void(0);" class="img-link" onclick="openLightbox('{{ image.path | relative_url }}')">
             <img src="{{ image.path | relative_url }}" alt="{{ image.basename }}" />
           </a>
         </div>
@@ -27,64 +23,78 @@ layout: default
   </section>
 </div>
 
-<style>
-  /* 1. 隐藏干扰元素 */
-  #main, #viewer, .poptrox-popup, .poptrox-overlay, #header {
-    display: none !important;
-  }
+<div id="lightbox" onclick="this.style.display='none'">
+  <img id="lightbox-img" src="" alt="Large View" />
+</div>
 
-  /* 2. 子页面布局 */
+<script>
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+  }
+</script>
+
+<style>
+  /* 1. 基础隐藏 */
+  #main, #viewer, .poptrox-popup, .poptrox-overlay, #header { display: none !important; }
+
+  /* 2. 容器布局 */
   #sub-container {
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
     background: #111;
-    padding: 60px 20px;
+    padding: 60px 5% 100px;
     box-sizing: border-box;
     text-align: center;
   }
 
-  /* 3. 头部标题与返回按钮 */
-  #sub-header { margin-bottom: 50px; }
-  #sub-header h1 { color: #fff; font-size: 1.8em; margin-bottom: 15px; }
-  .back-btn {
-    display: inline-block;
-    color: #666 !important;
-    text-decoration: none;
-    font-size: 0.85em;
-    padding: 6px 20px;
-    border: 1px solid #333;
-    border-radius: 30px;
-    transition: all 0.3s;
-  }
-  .back-btn:hover { border-color: #eee; color: #eee !important; }
-
-  /* 4. 照片网格 (一排 5 个) */
+  /* 3. 放大缩略图：每排 3 个或 4 个，让图看起来很大 */
   #photo-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 1300px;
+    max-width: 1400px;
     margin: 0 auto;
-    gap: 15px;
+    gap: 30px; /* 增加间距感 */
   }
 
   .photo-card {
-    flex: 0 1 calc(20% - 15px); /* 固定 5 列布局 */
-    min-width: 150px;
+    /* 核心修改：25% 宽度代表一排最多 4 个，如果你想更大可以改成 33% (一排 3 个) */
+    flex: 0 1 calc(25% - 30px); 
+    min-width: 280px; /* 限制最小宽度，保证不缩得太小 */
   }
 
-  /* 5. 图片样式：统一正方形，无边框 */
-  .img-link { display: block; width: 100%; overflow: hidden; border-radius: 4px; }
   .img-link img {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
   }
-  .img-link:hover img { transform: scale(1.1); }
+  .img-link:hover img { transform: scale(1.02); }
 
-  /* 响应式适配 */
-  @media (max-width: 1024px) { .photo-card { flex: 0 1 calc(33.33% - 15px); } }
-  @media (max-width: 600px) { .photo-card { flex: 0 1 calc(50% - 15px); } }
+  /* 4. 灯箱大图样式：直接在当前页面覆盖显示 */
+  #lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  #lightbox-img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  }
+
+  /* 响应式：手机端一排 1 个，保持大尺寸 */
+  @media (max-width: 768px) {
+    .photo-card { flex: 0 1 100%; }
+  }
 </style>
