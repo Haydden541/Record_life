@@ -39,11 +39,11 @@ layout: default
       
       {% unless folders contains folder_name %}
         {% assign folders = folders | push: folder_name %}
-        {% comment %} 
-           保留 article 结构但通过 data-skip 标记或修改类名来尝试避开背景加载逻辑
-        {% endcomment %}
         <article class="folder-item">
-          <a class="thumbnail" href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}" data-poptrox="ignore">
+          {% comment %} 
+             保留 thumbnail 类名让右侧栏出现，但添加 custom-link 类名用来强行跳转
+          {% endcomment %}
+          <a class="thumbnail custom-link" href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}">
             <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
           </a>
           <h2>{{ folder_name | upcase }} (点击进入)</h2>
@@ -53,18 +53,32 @@ layout: default
   {% endfor %}
 </section>
 
+<script>
+  // 核心逻辑：等页面加载完，强行把点击事件从旧脚本里抢回来
+  document.addEventListener('DOMContentLoaded', function() {
+    var links = document.querySelectorAll('.custom-link');
+    links.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        // 阻止模板自带的 poptrox 脚本运行（那个转圈圈的脚本）
+        e.preventDefault();
+        e.stopPropagation();
+        // 强制执行页面跳转
+        window.location.href = this.getAttribute('href');
+      }, true); // 使用捕获模式，确保在模板脚本之前执行
+    });
+  });
+</script>
+
 <style>
-  /* 强制显示首页的 article，防止被脚本隐藏 */
-  #thumbnails article.folder-item {
+  /* 确保首页图片能看见，不被脚本隐藏 */
+  #thumbnails article {
     opacity: 1 !important;
-    transform: none !important;
     visibility: visible !important;
     display: block !important;
   }
-  
-  /* 首页大图背景的修正：如果还在转圈，强制给中间加一个背景 */
-  #viewer .inner .toggle {
-    display: none !important; /* 隐藏中间那个转圈的切换按钮 */
+  /* 彻底干掉那个一直转圈的加载层 */
+  .poptrox-popup, .poptrox-overlay {
+    display: none !important;
   }
 </style>
 
