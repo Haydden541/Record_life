@@ -28,34 +28,30 @@ layout: default
     {% endif %}
   </header>
 
-  <section id="thumbnails">
-    {% comment %} 
-       获取 gallery 文件夹下的子文件夹名称 
-    {% endcomment %}
-    {% assign images = site.static_files | where_not: "image", false %}
-    {% assign folders = "" | split: "," %}
+ <section id="thumbnails">
+  {% assign images = site.static_files | where_not: "image", false %}
+  {% assign folders = "" | split: "," %}
 
-    {% for image in images %}
-      {% if image.path contains 'gallery/' %}
-        {% assign parts = image.path | split: '/' %}
-        {% assign folder_name = parts[2] %}
-        
-        {% unless folders contains folder_name %}
-          {% assign folders = folders | push: folder_name %}
-          
-          <article>
-            {% comment %} 
-               点击跳转到对应文件夹下的 index.html 页面
-            {% endcomment %}
-            <a class="thumbnail" href="{{ site.baseurl }}/gallery/{{ folder_name }}/index.html">
-              <img src="{{ image.path }}" alt="{{ folder_name }}" />
-            </a>
-            <h2>{{ folder_name | replace: "-", " " | upcase }} (点击进入合集)</h2>
-          </article>
-        {% endunless %}
-      {% endif %}
-    {% endfor %}
-  </section>
+  {% for image in images %}
+    {% if image.path contains 'gallery/' %}
+      {% assign parts = image.path | split: '/' %}
+      {% assign folder_name = parts[2] %}
+      
+      {% unless folders contains folder_name %}
+        {% assign folders = folders | push: folder_name %}
+        <article>
+          {% comment %} 
+             使用 relative_url 自动处理基础路径，防止路径重复
+          {% endcomment %}
+          <a class="thumbnail" href="{{ '/gallery/' | append: folder_name | append: '/' | relative_url }}">
+            <img src="{{ image.path | relative_url }}" alt="{{ folder_name }}" />
+          </a>
+          <h2>{{ folder_name | upcase }}</h2>
+        </article>
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+</section>
 
   <footer id="footer">
     <ul class="copyright">
